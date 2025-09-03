@@ -1,0 +1,6 @@
+# models/qa_model.py
+
+from transformers import pipeline
+
+def load_qa_pipeline():
+    return pipeline("question-answering", model="ibm/ibm-base-bert-uncased")

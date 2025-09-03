@@ -1,0 +1,41 @@
+# app.py
+
+import streamlit as st
+import tempfile
+from utils.pdf_reader import extract_text_from_pdf
+from models.qa_model import load_qa_pipeline
+
+# Load QA model
+qa_pipeline = load_qa_pipeline()
+
+st.set_page_config(page_title="StudyMate", layout="centered")
+st.title("📘 StudyMate: AI-Powered PDF Q&A System")
+
+# Upload PDF
+pdf_file = st.file_uploader("Upload your study PDF", type="pdf")
+
+if pdf_file:
+    # Save the uploaded PDF temporarily
+    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+        tmp_file.write(pdf_file.read())
+        tmp_path = tmp_file.name
+
+    # Extract text
+    text = extract_text_from_pdf(tmp_path)
+    st.success("✅ PDF uploaded and processed!")
+
+    # Ask question
+    question = st.text_input("Ask a question from the PDF content")
+
+    if question:
+        # For now, using the first 2000 characters (simplified)
+        context = text[:2000]
+
+        result = qa_pipeline(question=question, context=context)
+
+        st.markdown("### 📌 Answer:")
+        st.write(result['answer'])
+
+        st.markdown("---")
+        st.markdown("**📄 Source snippet:**")
+        st.write(context[:300] + "...")
